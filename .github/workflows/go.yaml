@@ -1,0 +1,40 @@
+name: Go
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  merge_group:
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+      - name: Test
+        run: go test -race -v ./...
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+      - name: Check Go module
+        run: |
+          go mod tidy
+          git diff --exit-code -- go.sum go.mod
+      - name: Check Go vet
+        run: go vet ./...
+      - name: Check static analysis
+        uses: dominikh/staticcheck-action@v1
+        with:
+          version: latest
+          install-go: false
